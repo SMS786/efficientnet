@@ -439,10 +439,23 @@ def EfficientNet(width_coefficient,
         x = layers.GlobalAveragePooling2D(name='avg_pool')(x)
         if dropout_rate and dropout_rate > 0:
             x = layers.Dropout(dropout_rate, name='top_dropout')(x)
-        x = layers.Dense(classes,
+        grapheme = layers.Dense(168,
                          activation='softmax',
                          kernel_initializer=DENSE_KERNEL_INITIALIZER,
-                         name='probs')(x)
+                         name='output_grapheme')(x)
+        
+        vowels = layers.Dense(11,
+                         activation='softmax',
+                         kernel_initializer=DENSE_KERNEL_INITIALIZER,
+                         name='output_vowels')(x)
+
+        consonants = layers.Dense(7,
+                         activation='softmax',
+                         kernel_initializer=DENSE_KERNEL_INITIALIZER,
+                         name='output_consonants')(x)
+  
+        
+        
     else:
         if pooling == 'avg':
             x = layers.GlobalAveragePooling2D(name='avg_pool')(x)
@@ -457,7 +470,7 @@ def EfficientNet(width_coefficient,
         inputs = img_input
 
     # Create model.
-    model = models.Model(inputs, x, name=model_name)
+    model = models.Model(inputs, [grapheme,vowels,consonants], name=model_name)
 
     # Load weights.
     if weights == 'imagenet':
